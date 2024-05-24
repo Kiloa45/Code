@@ -1,0 +1,304 @@
+#include <iostream> 
+
+#include <vector> 
+
+#include <fstream> 
+
+#include <algorithm> 
+
+#include <string> 
+
+  
+
+using namespace std; 
+
+  
+
+class Student { public: 
+
+    long int reg;     string name; 
+
+    string branch; 
+
+  
+
+    void input() {         cout << "\nEnter name: ";         getline(cin, name);         cout << "\nEnter roll no: "; 
+
+        cin >> reg;         cin.ignore();         cout << "\nEnter branch: "; 
+
+        getline(cin, branch); 
+
+    } 
+
+  
+
+    void display() const {         cout << "\nDisplay Records";         cout << "\nName - " << name;         cout << "\nReg no. - " << reg;         cout << "\nBranch - " << branch; 
+
+        cout << "\n"; 
+
+    } 
+
+  
+
+    bool operator==(const Student &a) const {         return reg == a.reg; 
+
+    } 
+
+}; 
+
+  
+
+vector<Student> students; 
+
+  
+
+int search_reg(long int reg, int &i); void get_file() { 
+
+    Student x; 
+
+    ifstream f("College.txt", ios::binary);     if (f) { 
+
+        while (f.read((char *)&x, sizeof(Student))) {             students.push_back(x); 
+
+        } 
+
+    } 
+
+} 
+
+  
+
+void write_file() { 
+
+    sort(students.begin(), students.end(), [](const Student &a, const Student &b) {         return a.reg < b.reg; 
+
+    }); 
+
+    ofstream f("College.txt", ios::binary);     for (const auto &x : students) { 
+
+        f.write((char *)&x, sizeof(Student)); 
+
+    } 
+
+} 
+
+  
+
+void insert_new() {     char ch = 'y';     while (ch == 'y') {         Student x;         x.input(); 
+
+        int ta; 
+
+        if (search_reg(x.reg, ta) == 0) { 
+
+            students.push_back(x); 
+
+        } else { 
+
+            cout << "\nTHE REGISTRATION NO. ALREADY EXISTS!!! CANNOT ADD"; 
+
+        } 
+
+        cout << "\nPress [Y] to enter more: ";         cin >> ch;         cin.ignore(); 
+
+    } 
+
+} 
+
+  
+
+int search_reg(long int reg, int &i) {     for (i = 0; i < students.size(); ++i) {         if (students[i].reg == reg) { 
+
+            return 1; 
+
+        } 
+
+    } 
+
+    return 0; 
+
+} 
+
+  
+
+int search_name(const string &name, vector<int> &vi) {     int ta = 0;     for (int i = 0; i < students.size(); ++i) { 
+
+        if (students[i].name == name) { 
+
+            ta = 1;             vi.push_back(i); 
+
+        } 
+
+    } 
+
+    return ta; 
+
+} 
+
+  
+
+int search_branch(const string &branch, vector<int> &vj) {     int ta = 0;     for (int i = 0; i < students.size(); ++i) { 
+
+        if (students[i].branch == branch) { 
+
+            ta = 1; 
+
+            vj.push_back(i); 
+
+        } 
+
+    } 
+
+    return ta; 
+
+} 
+
+  
+
+void search_and_show() { 
+
+    int ch, i, ta = 0;     string name, branch;     vector<int> vi, vj; 
+
+    long int reg; 
+
+  
+
+    cout << "\n1. Press to search reg no."          << "\n2. Press to search name"          << "\n3. Press to search branch"; 
+
+    cin >> ch;     cin.ignore(); 
+
+  
+
+    switch (ch) {         case 1: 
+
+            cout << "\nEnter reg no.: "; 
+
+            cin >> reg;             if (search_reg(reg, i) == 1)                 students[i].display();             else 
+
+                cout << "\nRecord NOT FOUND!!!"; 
+
+            break;         case 2: 
+
+            cout << "\nEnter name: ";             getline(cin, name);             if (search_name(name, vi) == 1) { 
+
+                for (int j : vi) { 
+
+                    students[j].display(); 
+
+                } 
+
+            } else { 
+
+                cout << "\nRecord NOT FOUND!!!"; 
+
+            } 
+
+            break;         case 3: 
+
+            cout << "\nEnter branch: ";             getline(cin, branch); 
+
+            if (search_branch(branch, vj) == 1) { 
+
+                for (int j : vj) { 
+
+                    students[j].display(); 
+
+                } 
+
+            } else { 
+
+                cout << "\nRecord NOT FOUND!!!"; 
+
+            } 
+
+            break;         default: 
+
+            cout << "\nWrong CHOICE!!!"; 
+
+            search_and_show(); 
+
+    } 
+
+} 
+
+  
+
+void show() {     for (const auto &student : students) {         student.display(); 
+
+    } 
+
+} 
+
+  
+
+void delete_data() { 
+
+    long int reg;     cout << "\nEnter Reg. no.: "; 
+
+    cin >> reg; 
+
+    int i; 
+
+    if (search_reg(reg, i) == 1) { 
+
+        cout << "\nThe following data is being deleted"; 
+
+        students[i].display(); 
+
+        students.erase(students.begin() + i); 
+
+    } 
+
+} 
+
+  
+
+void edit_data() {     long int reg;     cout << "\nEnter Reg. no.: "; 
+
+    cin >> reg; 
+
+    int i; 
+
+    if (search_reg(reg, i) == 1) {         cout << "\nEnter new data:"; 
+
+        cin.ignore();         students[i].input(); 
+
+    } 
+
+} 
+
+  
+
+int main() { 
+
+    int i = 1;     get_file();     while (i) {         cout << "\n-----------------------------------------";         cout << "\n   Simple College Management System";         cout << "\n-----------------------------------------";         cout << "\nEnter <1> to Add new student"              << "\nEnter <2> to Display all students" 
+
+             << "\nEnter <3> to Remove student" 
+
+             << "\nEnter <4> to Edit student" 
+
+             << "\nEnter <5> to Search student"              << "\nEnter <0> to Exit\n";         cout << "Enter Your Choice: "; 
+
+        cin >> i; 
+
+        cin.ignore(); 
+
+  
+
+        switch (i) { 
+
+            case 1:                 insert_new();                 break;             case 2:                 show();                 break;             case 3:                 delete_data();                 break;             case 4:                 edit_data();                 break;             case 5: 
+
+                search_and_show(); 
+
+                break;             case 0:                 write_file();                 break;             default: 
+
+                cout << "\nWRONG CHOICE!!! TRY AGAIN"; 
+
+        } 
+
+    } 
+
+    return 0; 
+
+} 
+
